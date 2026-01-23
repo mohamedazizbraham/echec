@@ -1,10 +1,7 @@
 <template>
   <div class="chess-container">
-    <div class="chess-board">
-      <div
-          v-for="(row, rowIndex) in board"
-          :key="rowIndex"
-      >
+    <div class="chess-board" data-testid="chessboard">
+      <div v-for="(row, rowIndex) in board" :key="rowIndex">
         <div
             v-for="(piece, colIndex) in row"
             :key="`${rowIndex}-${colIndex}`"
@@ -13,9 +10,21 @@
             isSquareLight(rowIndex, colIndex) ? 'light' : 'dark',
             isSelected(rowIndex, colIndex) ? 'selected' : ''
           ]"
+            :data-testid="`square-${rowIndex}-${colIndex}`"
+            :data-piece="piece || ''"
             @click="handleSquareClick(rowIndex, colIndex)"
+            @dragover.prevent
+            @drop="handleDrop(rowIndex, colIndex)"
         >
-          {{ getPieceSymbol(piece) }}
+          <span
+              v-if="piece"
+              class="piece"
+              :data-testid="`piece-${rowIndex}-${colIndex}`"
+              draggable="true"
+              @dragstart="handleDragStart(rowIndex, colIndex)"
+          >
+            {{ getPieceSymbol(piece) }}
+          </span>
         </div>
       </div>
     </div>
@@ -36,11 +45,16 @@ export default {
     }
   },
   emits: ['square-click'],
+  data() {
+    return {
+      dragFrom: null // [row, col]
+    };
+  },
   methods: {
     getPieceSymbol(piece) {
       const pieces = {
-        'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
-        'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
+        r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
+        R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔', P: '♙'
       };
       return piece ? pieces[piece] : '';
     },
@@ -48,11 +62,33 @@ export default {
       return (row + col) % 2 === 0;
     },
     isSelected(row, col) {
-      return this.selectedSquare &&
+      return (
+          this.selectedSquare &&
           this.selectedSquare[0] === row &&
-          this.selectedSquare[1] === col;
+          this.selectedSquare[1] === col
+      );
     },
     handleSquareClick(row, col) {
+      this.$emit('square-click', row, col);
+    },
+
+    // --------
+    // Drag & Drop (E2E)
+    // --------
+    handleDragStart(row, col) {
+      // on stocke la case source
+      this.dragFrom = [row, col];
+    },
+    handleDrop(row, col) {
+      if (!this.dragFrom) return;
+
+      const [fromRow, fromCol] = this.dragFrom;
+      this.dragFrom = null;
+
+      // On réutilise la logique existante de App.vue :
+      // 1er clic = sélectionner la pièce
+      // 2e clic = déplacer vers la case cible
+      this.$emit('square-click', fromRow, fromCol);
       this.$emit('square-click', row, col);
     }
   }
@@ -101,5 +137,19 @@ export default {
 
 .square.selected {
   box-shadow: inset 0 0 0 4px #fbbf24;
+}
+
+/* pièce séparée de la case (utile pour dragTo en Playwright) */
+.piece {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.piece:active {
+  cursor: grabbing;
 }
 </style>
