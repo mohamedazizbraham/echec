@@ -7,10 +7,10 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.5.26"
   },
   "devDependencies": {
-    "@vue/cli-service": "^5.0.0"
+    "@vue/cli-service": "^5.0.9"
   },
   "description": "This template should help get you started developing with Vue 3 in Vite.",
   "main": "vite.config.js",
