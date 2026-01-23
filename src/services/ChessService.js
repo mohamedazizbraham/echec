@@ -6,9 +6,14 @@ export class ChessService {
             'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
             'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
         };
+
+        // ✅ Initialisation immédiate pour éviter les erreurs au render
+        this.initializeBoard();
     }
 
+    // =========================
     // Initialiser le plateau
+    // =========================
     initializeBoard() {
         this.board = [
             ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
@@ -23,64 +28,83 @@ export class ChessService {
         this.moveHistory = [];
     }
 
-    // Obtenir le plateau
+    // =========================
+    // Plateau
+    // =========================
     getBoard() {
         return this.board;
     }
 
-    // Obtenir une pièce à une position donnée
     getPieceAt(row, col) {
+        if (!this.board[row]) return null;
         return this.board[row][col];
     }
 
-    // Déplacer une pièce
+    // =========================
+    // Déplacement
+    // =========================
     movePiece(fromRow, fromCol, toRow, toCol) {
+        if (!this.board[fromRow] || !this.board[toRow]) return;
+
         const piece = this.board[fromRow][fromCol];
+        if (!piece) return;
+
         const capturedPiece = this.board[toRow][toCol];
 
-        // Enregistrer le mouvement dans l'historique
         this.moveHistory.push({
-            piece: piece,
+            piece,
             from: { row: fromRow, col: fromCol },
             to: { row: toRow, col: toCol },
             captured: capturedPiece || null,
             timestamp: new Date().toLocaleTimeString()
         });
 
-        // Effectuer le déplacement
         this.board[toRow][toCol] = piece;
         this.board[fromRow][fromCol] = '';
     }
 
-    // Obtenir toutes les pièces sur le plateau avec leur position
+    // =========================
+    // Pièces
+    // =========================
     getAllPieces() {
         const pieces = [];
+
+        if (!Array.isArray(this.board) || this.board.length !== 8) {
+            return pieces;
+        }
+
         for (let row = 0; row < 8; row++) {
+            if (!Array.isArray(this.board[row])) continue;
+
             for (let col = 0; col < 8; col++) {
                 const piece = this.board[row][col];
                 if (piece) {
                     pieces.push({
                         type: piece,
-                        row: row,
-                        col: col
+                        row,
+                        col
                     });
                 }
             }
         }
+
         return pieces;
     }
 
-    // Obtenir l'historique des déplacements
-    getMoveHistory() {
-        return this.moveHistory;
-    }
-
-    // Obtenir le symbole d'une pièce
     getPieceSymbol(piece) {
         return piece ? this.pieces[piece] : '';
     }
 
-    // Réinitialiser le jeu
+    // =========================
+    // Historique
+    // =========================
+    getMoveHistory() {
+        return this.moveHistory;
+    }
+
+    // =========================
+    // Reset
+    // =========================
     reset() {
         this.initializeBoard();
     }
