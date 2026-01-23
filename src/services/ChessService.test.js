@@ -7,7 +7,6 @@ describe('ChessService', () => {
     beforeEach(() => {
         service = new ChessService()
     })
-
     it('initialise un plateau 8x8 au démarrage', () => {
         const board = service.getBoard()
         expect(board).toHaveLength(8)
