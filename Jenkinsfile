@@ -9,6 +9,10 @@ pipeline {
             }
         }
         stage('Test') {
+            environment {
+                NETLIFY_AUTH_TOKEN = credentials('NETLIFY_TOKEN')
+            }
+            when { branch 'master' }
             agent { docker { image 'mcr.microsoft.com/playwright:v1.58.0-noble' } }
             steps {
                 sh 'npm run test'

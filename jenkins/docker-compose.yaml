@@ -10,6 +10,9 @@ services:
       - jenkins-data:/var/jenkins_home:rw
     environment:
       - DOCKER_TLS_CERTDIR=/certs
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
   jenkins:
     build: .
     restart: always
@@ -24,6 +27,9 @@ services:
       - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 volumes:
     jenkins-data:
     jenkins-docker-certs:
