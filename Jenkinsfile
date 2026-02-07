@@ -32,6 +32,24 @@ pipeline {
         sh 'npm run test:e2e'
       }
     }
+    stage('Docker build & push (main only)') {
+      agent any
+      when { branch 'main' }
+
+      environment {
+        CI_REGISTRY = 'ghcr.io'
+        CI_REGISTRY_USER = 'mohamedazizbraham'
+        CI_REGISTRY_IMAGE = "${CI_REGISTRY}/${CI_REGISTRY_USER}/chess:latest"
+        CI_REGISTRY_PASSWORD = credentials('CI_REGISTRY_PASSWORD')
+      }
+
+      steps {
+        sh 'docker version'
+        sh 'docker build --network=host -t $CI_REGISTRY_IMAGE .'
+        sh 'echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY'
+        sh 'docker push $CI_REGISTRY_IMAGE'
+      }
+    }
 
     stage('Deploy Netlify (main/master only)') {
       when {
