@@ -70,7 +70,7 @@ pipeline {
         checkout scm
 
         sh 'docker version'
-        sh 'docker build -f C:\Users\braham\IdeaProjects\echec\Dockerfile --network=host -t $CI_REGISTRY_IMAGE .'
+        sh 'docker build -f Dockerfile --network=host -t $CI_REGISTRY_IMAGE .'
         sh 'echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY'
         sh 'docker push $CI_REGISTRY_IMAGE'
       }
