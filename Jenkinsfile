@@ -54,10 +54,7 @@ pipeline {
 
     stage('Deploy Netlify (master/main only)') {
       when {
-        anyOf {
-          branch 'master'
-          branch 'main'
-        }
+        branch 'main'
       }
 
       environment {
