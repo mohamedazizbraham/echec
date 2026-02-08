@@ -11,6 +11,7 @@
     "test:e2e": "playwright test --reporter=line --reporter=html"
   },
   "dependencies": {
+    "chess.js": "^1.4.0",
     "vue": "^3.5.26"
   },
   "devDependencies": {
