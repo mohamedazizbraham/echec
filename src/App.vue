@@ -16,9 +16,16 @@
               ? '🎯 Cliquez sur une case pour déplacer la pièce'
               : '♟️ Cliquez sur une pièce pour la sélectionner' }}
           </p>
-          <button class="reset-btn" @click="resetBoard">
-            Réinitialiser
-          </button>
+
+          <div class="buttons">
+            <button class="undo-btn" data-testid="undo" @click="undo">
+              Annuler
+            </button>
+
+            <button class="reset-btn" @click="resetBoard">
+              Réinitialiser
+            </button>
+          </div>
         </div>
       </div>
 
@@ -64,6 +71,15 @@ export default {
         this.selectedSquare = [row, col];
       }
     },
+
+    undo() {
+      const ok = this.chessService.undoLastMove?.();
+      // ok peut être false si aucun coup à annuler
+      this.board = [...this.chessService.getBoard()];
+      this.selectedSquare = null;
+      return ok;
+    },
+
     resetBoard() {
       this.chessService.reset();
       this.board = [...this.chessService.getBoard()];
@@ -115,6 +131,29 @@ h1 {
   color: white;
   font-size: 1.1rem;
   margin-bottom: 15px;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.undo-btn {
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.undo-btn:hover {
+  background-color: #0284c7;
 }
 
 .reset-btn {

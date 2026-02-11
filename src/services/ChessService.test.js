@@ -17,14 +17,14 @@ describe('ChessService', () => {
     })
 
     it('place correctement quelques pièces au départ', () => {
-        expect(service.getPieceAt(0, 0)).toBe('r') // Tour noire
-        expect(service.getPieceAt(0, 4)).toBe('k') // Roi noir
+        expect(service.getPieceAt(0, 0)).toBe('r') // tour noire
+        expect(service.getPieceAt(0, 4)).toBe('k') // roi noir
         expect(service.getPieceAt(1, 0)).toBe('p')
         expect(service.getPieceAt(1, 7)).toBe('p')
 
         expect(service.getPieceAt(6, 0)).toBe('P')
         expect(service.getPieceAt(6, 7)).toBe('P')
-        expect(service.getPieceAt(7, 0)).toBe('R') // Tour blanche
+        expect(service.getPieceAt(7, 0)).toBe('R')
     })
 
     it('getPieceAt retourne null si la ligne est invalide', () => {
@@ -32,8 +32,8 @@ describe('ChessService', () => {
         expect(service.getPieceAt(-1, 0)).toBeNull()
     })
 
-    it('movePiece déplace une pièce vers une case vide', () => {
-        const ok = service.movePiece(6, 0, 5, 0) // a2 -> a3 (coup légal)
+    it('movePiece déplace une pièce vers une case vide (coup légal)', () => {
+        const ok = service.movePiece(6, 0, 5, 0) // a2 -> a3
         expect(ok).toBe(true)
 
         expect(service.getPieceAt(6, 0)).toBe('')
@@ -41,10 +41,12 @@ describe('ChessService', () => {
     })
 
     it('movePiece capture une pièce si la case cible est occupée (coup légal)', () => {
-        // Roi noir e8, roi blanc e1, pion blanc a2, pion noir b3, aux blancs
+        // FEN valide: rois présents + pion blanc a2 + pion noir b3, trait aux blancs
         service.game.load('4k3/8/8/8/8/1p6/P7/4K3 w - - 0 1')
+        service._fromGameBoardToMatrix()
 
-        const ok = service.movePiece(6, 0, 5, 1) // a2 -> b3
+        // a2 -> b3 (capture en diagonale)
+        const ok = service.movePiece(6, 0, 5, 1)
         expect(ok).toBe(true)
 
         expect(service.getPieceAt(6, 0)).toBe('')
@@ -96,10 +98,24 @@ describe('ChessService', () => {
         const beforeBoard = JSON.stringify(service.getBoard())
         const beforeHistoryLen = service.getMoveHistory().length
 
-        const ok = service.movePiece(4, 4, 3, 4) // case vide
+        const ok = service.movePiece(4, 4, 3, 4)
         expect(ok).toBe(false)
 
         expect(JSON.stringify(service.getBoard())).toBe(beforeBoard)
         expect(service.getMoveHistory().length).toBe(beforeHistoryLen)
+    })
+
+    it('undoLastMove annule le dernier coup (v1.3)', () => {
+        // Si tu n’as pas encore ajouté undoLastMove, ce test échouera => ajoute la méthode
+        const ok1 = service.movePiece(6, 0, 5, 0) // a2 -> a3
+        expect(ok1).toBe(true)
+        expect(service.getPieceAt(5, 0)).toBe('P')
+
+        const ok2 = service.undoLastMove()
+        expect(ok2).toBe(true)
+
+        expect(service.getPieceAt(6, 0)).toBe('P')
+        expect(service.getPieceAt(5, 0)).toBe('')
+        expect(service.getMoveHistory().length).toBe(0)
     })
 })
