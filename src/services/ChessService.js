@@ -175,6 +175,21 @@ export class ChessService {
     getMoveHistory() {
         return this.moveHistory;
     }
+    // =========================
+// Undo (v1.3)
+// =========================
+    undoLastMove() {
+        const undone = this.game.undo(); // null si rien à annuler
+        if (!undone) return false;
+
+        // Retire le dernier coup côté historique UI
+        this.moveHistory.pop();
+
+        // Sync matrice d’affichage
+        this._fromGameBoardToMatrix();
+        return true;
+    }
+
 
     // =========================
     // Infos (optionnel)
